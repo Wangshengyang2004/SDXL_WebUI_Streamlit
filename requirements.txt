@@ -1,0 +1,6 @@
+transformers
+accelerate
+safetensors
+invisible-watermark>=0.2.0
+diffusers
+torch==2.0.1+cu118
