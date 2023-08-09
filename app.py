@@ -50,7 +50,8 @@ def main():
 
     default_prompt = "Japanese girl in a red dress"
     prompt = st.sidebar.text_area(label="Enter a prompt", value=default_prompt, placeholder="A majestic lion jumping from a big stone at night", height=200)
-
+    height = st.sidebar.slider("Height", 128, 1024, 512)
+    width = st.sidebar.slider("Width", 128, 1024, 512)
     num_steps = st.sidebar.slider("Number of steps", 10, 100, 50)
     denoising_end = st.sidebar.slider("Denoising end fraction", 0.0, 1.0, 0.8)
     guidance_scale = st.sidebar.slider("Guidance scale", 1.0, 10.0, 7.5)
@@ -58,7 +59,7 @@ def main():
     negative_prompt = ", ".join(selected_negative_prompts)  # Convert the list of selected options into a string
 
     if mode == "text2img":
-        handle_text2img(prompt, negative_prompt, num_steps, denoising_end, guidance_scale)
+        handle_text2img(prompt, negative_prompt, height, width, num_steps, denoising_end, guidance_scale)
     elif mode == "img2img":
         handle_img2img(prompt, negative_prompt, num_steps, denoising_end, guidance_scale)
     else:  # inpainting

@@ -250,4 +250,5 @@ def save_image(image, save_folder=None, image_name=None):
 
 def display_image(image):
     if image is not None:
+        save_image(image)
         st.image(image)
