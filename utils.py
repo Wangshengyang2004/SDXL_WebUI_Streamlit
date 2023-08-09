@@ -5,10 +5,10 @@ import torch
 import io
 from PIL import Image
 import os
-import xformers
+import datetime
 
 @st.cache_resource()
-def load_text_to_image_model(cpu_offload, xformers_enabled):
+def load_text_to_image_model(cpu_offload):
     # Load the base model for text-to-image
     base = DiffusionPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True
@@ -25,12 +25,9 @@ def load_text_to_image_model(cpu_offload, xformers_enabled):
         base.unet = torch.compile(base.unet, mode="reduce-overhead", fullgraph=True)
         torch_compile_enabled = True
 
-    if xformers_enabled:
-        base.enable_xformers_memory_efficient_attention()
 
     st.info(f'Base Model loading completed. CPU Offload: {"Enabled" if cpu_offload_enabled else "Disabled"}, '
-            f'Torch Compile: {"Enabled" if torch_compile_enabled else "Disabled"}, '
-            f'XFormers: {"Enabled" if xformers_enabled else "Disabled"}', icon="ℹ️")
+            f'Torch Compile: {"Enabled" if torch_compile_enabled else "Disabled"},', icon="ℹ️")
     
     return base
 
@@ -41,7 +38,7 @@ def load_image_to_image_model():
         "stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True
     )
     base.to("cuda")
-    st.info('Base Model loading completed', icon="ℹ️")
+    st.toast('Base Model loading completed', icon="ℹ️")
     #pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
     return base
 
@@ -52,12 +49,12 @@ def load_inpainting_model():
         "stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True
     )
     base.to("cuda")
-    st.info('Base Model loading completed', icon="ℹ️")
+    st.toast('Base Model loading completed', icon="ℹ️")
     #pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
     return base
 
 @st.cache_resource()
-def load_refiner_model(_base, cpu_offload, xformers_enabled):
+def load_refiner_model(_base, cpu_offload):
     # Load the refiner model
     refiner = DiffusionPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-refiner-1.0",
@@ -80,53 +77,55 @@ def load_refiner_model(_base, cpu_offload, xformers_enabled):
         refiner.unet = torch.compile(refiner.unet, mode="reduce-overhead", fullgraph=True)
         torch_compile_enabled = True
 
-    if xformers_enabled:
-        refiner.enable_xformers_memory_efficient_attention()
-
-    st.info(f'Refiner Model loading completed. CPU Offload: {"Enabled" if cpu_offload_enabled else "Disabled"}, '
-            f'Torch Compile: {"Enabled" if torch_compile_enabled else "Disabled"}, '
-            f'XFormers: {"Enabled" if xformers_enabled else "Disabled"}', icon="ℹ️")
+    st.toast(f'Refiner Model loading completed. CPU Offload: {"Enabled" if cpu_offload_enabled else "Disabled"}, '
+            f'Torch Compile: {"Enabled" if torch_compile_enabled else "Disabled"},', icon="ℹ️")
 
     return refiner
 
 
-
-
-
-
-
-
-def text_to_image(prompt, negative_prompt, num_steps, high_noise_frac, guidance_scale, use_refiner):
-    image = st.session_state.base(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        num_inference_steps=num_steps,
-        denoising_end=high_noise_frac,
-        guidance_scale=guidance_scale,
-        output_type="latent",
-    ).images
-    
-
+def text_to_image(prompt, negative_prompt, height, width, num_steps, high_noise_frac, guidance_scale, use_refiner):
     if use_refiner:
+        image = st.session_state.base(
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            height = height,
+            width = width,
+            num_inference_steps=num_steps,
+            denoising_end=high_noise_frac,
+            guidance_scale=guidance_scale,
+            output_type="latent",
+        ).images
+        
         image = st.session_state.refiner(
             prompt=prompt,
             negative_prompt=negative_prompt,
+            height = height,
+            width = width,
             num_inference_steps=num_steps,
             denoising_start=high_noise_frac,  # Changed from denoising_end
             guidance_scale=guidance_scale,
             image=image,  # Added this line
         ).images[0]
         st.write(f"Result: {image}")
-        
-        if image is None:
-            st.error("Failed to refine image.")
-            return None
- 
         return image
     
-    if not use_refiner:
+    elif not use_refiner:
+        image = st.session_state.base(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        height = height,
+        width = width,
+        num_inference_steps=num_steps,
+        denoising_end=high_noise_frac,
+        guidance_scale=guidance_scale,
+        output_type="latent",
+        ).images[0]
         st.write(f"Result: {image}")
-        return image[0]
+        return image
+
+    elif image is None:
+        st.error("Failed to refine image. Please contact the developer.")
+        return None
 
 
 
@@ -187,10 +186,10 @@ def inpainting(prompt, init_image, mask_image,num_inference_steps,high_noise_fra
     return image[0]
 
 
-def handle_text2img(prompt, negative_prompt, num_steps, high_noise_frac, guidance_scale):
+def handle_text2img(prompt, negative_prompt, height, width, num_steps, high_noise_frac, guidance_scale):
     use_refiner = st.sidebar.checkbox('Use refiner', value=True)
     if st.sidebar.button("Generate"):
-        image = text_to_image(prompt, negative_prompt, num_steps, high_noise_frac, guidance_scale, use_refiner)
+        image = text_to_image(prompt, negative_prompt, height, width,num_steps, high_noise_frac, guidance_scale, use_refiner)
         st.image(image)
 
 
@@ -219,6 +218,35 @@ def handle_inpainting(prompt, negative_prompt, num_steps, denoising_end, guidanc
         mask_image = Image.open(io.BytesIO(mask_image_file.read()))
         image = inpainting(prompt, negative_prompt, init_image, mask_image, num_steps, denoising_end, guidance_scale)
         display_image(image)
+
+
+
+def save_image(image, save_folder=None, image_name=None):
+    """
+    Save the given image to the specified folder.
+    If the folder doesn't exist, it creates one.
+    The image is saved with a timestamp-based name if no name is provided.
+    
+    :param image: Image to save (PIL Image object)
+    :param save_folder: Folder to save the image. Defaults to "saved_images".
+    :param image_name: Name of the saved image. Defaults to a timestamp.
+    """
+    if save_folder is None:
+        save_folder = "saved_images"
+
+    if not os.path.exists(save_folder):
+        os.makedirs(save_folder)
+
+    # If no image_name is provided, use a timestamp
+    if image_name is None:
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        image_name = f"image_{timestamp}.png"
+
+    image_path = os.path.join(save_folder, image_name)
+    image.save(image_path, "PNG")
+    print(f"Image saved at: {image_path}")
+
+
 
 def display_image(image):
     if image is not None:

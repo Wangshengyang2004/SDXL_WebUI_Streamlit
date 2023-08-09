@@ -1,6 +1,6 @@
 import streamlit as st
 from diffusers.utils import load_image
-from utils_feature_test import *
+from utils import *
 
 # Common negative prompt options
 NEGATIVE_PROMPT_OPTIONS = ["NSFW", "Multiple people", "low-res", "bad anatomy", "bad hands", "text", "error", "missing fingers",
@@ -22,14 +22,11 @@ def main():
     st.sidebar.title("Parameters")
     mode = st.sidebar.selectbox("Mode", ["text2img", "img2img", "inpainting"], index=0)
     cpu_offload = st.sidebar.checkbox('Enable CPU Offload', value=False)
-    xformers_enabled = st.sidebar.checkbox('Enable XFormers Memory Efficient Attention(Not Complete)', value=False)
 
     
-    # If the CPU offload or XFormers checkbox states have changed, clear the pipeline and reload the models
-    if ("cpu_offload" not in st.session_state or st.session_state.cpu_offload != cpu_offload or 
-        "xformers_enabled" not in st.session_state or st.session_state.xformers_enabled != xformers_enabled):
+    # If the CPU offload checkbox states have changed, clear the pipeline and reload the models
+    if ("cpu_offload" not in st.session_state or st.session_state.cpu_offload != cpu_offload):
         st.session_state.cpu_offload = cpu_offload
-        st.session_state.xformers_enabled = xformers_enabled
         st.session_state.base = None
         st.session_state.refiner = None
 
@@ -42,14 +39,14 @@ def main():
     # Load models
     if st.session_state.base is None:
         if mode == "text2img":
-             st.session_state.base = load_text_to_image_model(cpu_offload, xformers_enabled)
+             st.session_state.base = load_text_to_image_model(cpu_offload)
         elif mode == "img2img":
-             st.session_state.base = load_image_to_image_model(cpu_offload, xformers_enabled)
+             st.session_state.base = load_image_to_image_model(cpu_offload)
         elif mode == "inpainting":
-             st.session_state.base = load_inpainting_model(cpu_offload, xformers_enabled)
+             st.session_state.base = load_inpainting_model(cpu_offload)
 
     if st.session_state.refiner is None:
-        st.session_state.refiner = load_refiner_model(st.session_state.base, cpu_offload, xformers_enabled)
+        st.session_state.refiner = load_refiner_model(st.session_state.base, cpu_offload)
 
     default_prompt = "Japanese girl in a red dress"
     prompt = st.sidebar.text_area(label="Enter a prompt", value=default_prompt, placeholder="A majestic lion jumping from a big stone at night", height=200)
