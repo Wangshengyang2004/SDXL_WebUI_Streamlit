@@ -46,11 +46,7 @@ def main():
 
     # Button to trigger image generation
     if st.sidebar.button("Generate Image"):
-<<<<<<< HEAD
         response = requests.post("http://localhost:8000/generate-and-refine/", json={
-=======
-        response = requests.post("http://your_fastapi_server_url/generate-and-refine/", json={
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
             "prompt1": prompt1,
             "prompt2": prompt2,
             "negative_prompt": negative_prompt,
@@ -68,11 +64,8 @@ def main():
             st.image(image, caption="Generated Image", use_column_width=True)
         else:
             st.warning("Failed to generate image.")
-<<<<<<< HEAD
             st.write(response.text)
 
-=======
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
 
 if __name__ == "__main__":
     main()

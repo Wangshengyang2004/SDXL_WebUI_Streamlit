@@ -3,10 +3,6 @@ from pydantic import BaseModel
 import base64
 from io import BytesIO
 from backend_utils import SDXL_Pipeline
-<<<<<<< HEAD
-=======
-app = FastAPI()
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
 
 class ImageRequest(BaseModel):
     prompt1: str
@@ -17,7 +13,6 @@ class ImageRequest(BaseModel):
     num_steps: int
     high_noise_frac: float
     guidance_scale: float
-<<<<<<< HEAD
 
 app = FastAPI()
 
@@ -28,16 +23,6 @@ pipeline.load_refiner_model()
 
 @app.post("/generate-and-refine/")
 async def generate_and_refine_image(request: ImageRequest):
-=======
-    cpu_offload: bool
-
-@app.post("/generate-and-refine/")
-async def generate_and_refine_image(request: ImageRequest):
-    pipeline = SDXL_Pipeline()
-    pipeline.load_base_model()
-    pipeline.load_refiner_model()
-    
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
     refined_image = pipeline.generate_and_refine(
         prompt1=request.prompt1,
         prompt2=request.prompt2,
@@ -53,8 +38,4 @@ async def generate_and_refine_image(request: ImageRequest):
     refined_image.save(buffered, format="JPEG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
     
-<<<<<<< HEAD
     return {"image_base64": img_str}
-=======
-    return {"image_base64": img_str}
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4

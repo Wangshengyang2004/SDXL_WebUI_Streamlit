@@ -15,7 +15,6 @@ class SDXL_Pipeline:
         self.base_model = None
         self.refiner_model = None
 
-<<<<<<< HEAD
     def load_base_model(self, use_re_compile: bool = False):
         model = DiffusionPipeline.from_pretrained(
             "stabilityai/stable-diffusion-xl-base-1.0",
@@ -25,25 +24,6 @@ class SDXL_Pipeline:
         if os.name == 'posix' and use_re_compile:
             model.unet = torch.compile(model.unet, mode="reduce-overhead", fullgraph=True)
             print("Refiner U-Net Recompile successful")
-=======
-    def load_base_model(self, cpu_offload: bool, use_re_compile: bool = False):
-        model = DiffusionPipeline.from_pretrained(
-            "stabilityai/stable-diffusion-xl-base-1.0",
-            torch_dtype=torch.float16, variant="fp16", use_safetensors=True)
-
-        if cpu_offload:
-            model.enable_model_cpu_offload()
-            offload_status = "Enabled"
-        else:
-            model.to("cuda")
-            offload_status = "Disabled"
-
-        compile_status = "Disabled"
-        if os.name == 'posix' and use_re_compile:
-            model.unet = torch.compile(model.unet, mode="reduce-overhead", fullgraph=True)
-            compile_status = "Enabled"
-
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
         self.base_model = model
 
     def load_image_to_image_model(self):
@@ -60,35 +40,17 @@ class SDXL_Pipeline:
         model.to("cuda")
         self.base_model = model
 
-<<<<<<< HEAD
     def load_refiner_model(self):
-=======
-    def load_refiner_model(self, cpu_offload: bool):
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
         refiner = DiffusionPipeline.from_pretrained(
             "stabilityai/stable-diffusion-xl-refiner-1.0",
             text_encoder_2=self.base_model.text_encoder_2,
             vae=self.base_model.vae,
             torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
 
-<<<<<<< HEAD
         refiner.to("cuda")
         if os.name == 'posix':
             refiner.unet = torch.compile(refiner.unet, mode="reduce-overhead", fullgraph=True)
             print("Refiner U-Net Recompile successful")
-=======
-        if cpu_offload:
-            refiner.enable_model_cpu_offload()
-            offload_status = "Enabled"
-        else:
-            refiner.to("cuda")
-            offload_status = "Disabled"
-
-        compile_status = "Disabled"
-        if os.name == 'posix':
-            refiner.unet = torch.compile(refiner.unet, mode="reduce-overhead", fullgraph=True)
-            compile_status = "Enabled"
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
 
         self.refiner_model = refiner
 
@@ -100,18 +62,13 @@ class SDXL_Pipeline:
                       num_steps: int, high_noise_frac: float, guidance_scale: float) -> Image:
         image = self.base_model(
             prompt=prompt1,
-<<<<<<< HEAD
             prompt_2=prompt2,
-=======
-            prompt2=prompt2,
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
             negative_prompt=negative_prompt,
             height=h, width=w,
             num_inference_steps=num_steps,
             denoising_end=high_noise_frac,
             guidance_scale=guidance_scale,
             output_type="latent").images[0]
-<<<<<<< HEAD
         return image
 
     def refine(self, image: Image, prompt1: str, prompt2: str, negative_prompt: str, 
@@ -120,17 +77,6 @@ class SDXL_Pipeline:
             prompt=prompt1,
             prompt_2=prompt2,
             negative_prompt=negative_prompt,
-=======
-        self.save_image(image)
-        return image
-
-    def refine(self, image: Image, prompt: str, negative_prompt: str, h: int, w: int, 
-               num_steps: int, high_noise_frac: float, guidance_scale: float) -> Image:
-        refined_image = self.refiner_model(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            height=h, width=w,
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
             num_inference_steps=num_steps,
             denoising_start=high_noise_frac,
             guidance_scale=guidance_scale,
@@ -140,11 +86,7 @@ class SDXL_Pipeline:
     def generate_and_refine(self, prompt1: str, prompt2: str, negative_prompt: str, h: int, w: int, 
                         num_steps: int, high_noise_frac: float, guidance_scale: float) -> Image:
         base_image = self.base_generate(prompt1, prompt2, negative_prompt, h, w, num_steps, high_noise_frac, guidance_scale)
-<<<<<<< HEAD
         refined_image = self.refine(base_image, prompt1, prompt2, negative_prompt,num_steps, high_noise_frac, guidance_scale)
-=======
-        refined_image = self.refine(base_image, prompt1, negative_prompt, h, w, num_steps, high_noise_frac, guidance_scale)
->>>>>>> a480a1c2fb2a3534fe5dd396437aabb47be587f4
         self.save_image(refined_image)
         return refined_image
     
