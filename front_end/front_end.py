@@ -38,23 +38,12 @@ selected_positive_prompts = [
     "Masterpiece",
 ]
 
-def main():
-    global selected_negative_prompts
-    # Page info
-    st.set_page_config(
-        page_title="SDXL 1.0 Web App",
-        page_icon=":robot:",
-        layout='wide'
-    )
-
+def sidebar():
+    pass
+def text_to_image():
     # Sidebar setup
     st.sidebar.title("Parameters")
-    mode = st.sidebar.selectbox("Mode", ["text2img", "img2img", "inpainting"], index=0)
-    
-    # Check if the mode has changed and set the appropriate mode in session state
-    if "mode" not in st.session_state or st.session_state.mode != mode:
-        st.session_state.mode = mode
-
+    global selected_negative_prompts
     # Rest of the prompt and parameter setup
     default_prompt = "realism of a built, angular, Nervous Traditionalist woman, Stately, :o, with long black hair wearing cardigan vest , digital art, highly detailed, fine detail, intricate, outrun, vaporware"
     prompt1 = st.sidebar.text_area(label="Enter a prompt", value=default_prompt, height=200)
@@ -103,6 +92,40 @@ def main():
             st.warning("Failed to generate image.")
             st.write(response.text)
 
+
+def image_to_image():
+    pass
+
+def image_to_text():
+    pass
+
+def ControlNet():
+    pass
+
+def YOLOv8_Anime():
+    pass
+
+def My_Account():
+    pass
+
+def About():
+    st.write("This is a web app for the SDXL 1.0 model. It is a work in progress.")
+
+def main():
+
+    tab1,tab2,tab3,tab4,tab5,tab6,tab7 = st.tabs(["Text to Image", "Image to Image", "Image to Text","ControlNet","YOLOv8 Anime","My Account","About"])
+    # Page info
+    st.set_page_config(
+        page_title="SDXL 1.0 Web App",
+        page_icon=":robot:",
+        layout='wide'
+    )
+
+    with tab1:
+        text_to_image()
+    
+    with tab2:
+        image_to_image()
 
 if __name__ == "__main__":
     main()
