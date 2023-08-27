@@ -110,7 +110,7 @@ if args["build_dynamic_shape"] or args["image_height"] > 512 or args["image_widt
 if batch_size > max_batch_size:
     raise ValueError(f"Batch size {len(test_prompt)} is larger than allowed {max_batch_size}. If dynamic shape is used, then maximum batch size is 4")
 
-if args.use_cuda_graph and (not args.build_static_batch or args.build_dynamic_shape):
+if args["use_cuda_graph"] and (not args["build_static_batch"] or args["build_dynamic_shape"]):
     raise ValueError(f"Using CUDA graph requires static dimensions. Enable `--build-static-batch` and do not specify `--build-dynamic-shape`")
 
 if args["use_cuda_graph"]:
