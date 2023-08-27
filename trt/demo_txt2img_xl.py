@@ -48,6 +48,7 @@ if __name__ == "__main__":
     if not isinstance(args.prompt, list):
         raise ValueError(f"`prompt` must be of type `str` or `str` list, but is {type(args.prompt)}")
     prompt = args.prompt * args.repeat_prompt
+    print(prompt)
 
     if not isinstance(args.negative_prompt, list):
         raise ValueError(f"`--negative-prompt` must be of type `str` or `str` list, but is {type(args.negative_prompt)}")
@@ -55,7 +56,7 @@ if __name__ == "__main__":
         negative_prompt = args.negative_prompt * len(prompt)
     else:
         negative_prompt = args.negative_prompt
-
+    print(negative_prompt)
     # Validate image dimensions
     image_height = args.height
     image_width = args.width
