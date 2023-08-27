@@ -43,7 +43,7 @@ args = {
     'build_all_tactics': False,
     'timing_cache': None,
     'onnx_refit_dir': None,
-    'seed': 0,
+    'seed': 11451,
     'num_warmup_runs': 1,
     'onnx_base_dir': '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-base',
     'onnx_refiner_dir': '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-refiner',
@@ -95,8 +95,12 @@ max_device_memory = max(demo_base.calculateMaxDeviceMemory(), demo_refiner.calcu
 _, shared_device_memory = cudart.cudaMalloc(max_device_memory)
 demo_base.activateEngines(shared_device_memory)
 demo_refiner.activateEngines(shared_device_memory)
-demo_base.loadResources(args["image_height"], args["image_width"], args["batch_size"], args["seed"])
-demo_refiner.loadResources(args["image_height"], args["image_width"], args["batch_size"], args["seed"])
+image_height = 1024
+image_width = 1024
+batch_size = 4
+demo_base.loadResources(image_height, image_width, batch_size, args["seed"])
+demo_refiner.loadResources(image_height, image_width, batch_size, args["seed"])
+
 
 prompt = "A photo of a cat"
 negative_prompt = "A photo of a dog"
@@ -117,8 +121,8 @@ for _ in range(args["num_warmup_runs"]):
 @app.post("/generate-and-refine/")
 async def generate_and_refine_image(request: ImageRequest):
     # Process prompt
-    prompt = [request.prompt1+request.prompt2]
-    negative_prompt = [request.negative_prompt]
+    prompt = request.prompt1+request.prompt2
+    negative_prompt = request.negative_prompt
     image_height = request.h
     image_width = request.w
     batch_size = len(prompt)
