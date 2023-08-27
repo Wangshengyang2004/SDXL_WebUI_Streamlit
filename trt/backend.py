@@ -8,6 +8,8 @@ from utilities import TRT_LOGGER
 from txt2img_xl_pipeline import Txt2ImgXLPipeline
 from img2img_xl_pipeline import Img2ImgXLPipeline
 from PIL import Image
+import os
+import torch
 
 class ImageRequest(BaseModel):
     prompt: str
@@ -19,13 +21,13 @@ app = FastAPI()
 
 # Arguments for initializing the pipeline
 args = {
-    'scheduler': 'DPM',
+    'scheduler': 'DDIM',
     'denoising_steps': 30,
     'output_dir': './output',
     'version': 'xl-1.0',
     'hf_token': None,
     'verbose': False,
-    'nvtx_profile': False,
+    'nvtx_profile': True,
     'max_batch_size': 4,
     'batch_size':4,
     'use_cuda_graph': True,
