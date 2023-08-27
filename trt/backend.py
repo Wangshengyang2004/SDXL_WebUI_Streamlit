@@ -26,7 +26,7 @@ args = {
     'hf_token': None,
     'verbose': False,
     'nvtx_profile': False,
-    'max_batch_size': 16,
+    'max_batch_size': 4,
     'batch_size':4,
     'use_cuda_graph': True,
     'framework_model_dir': './model_dir',
@@ -86,6 +86,9 @@ def run_sd_xl_inference(prompt, negative_prompt, image_height, image_width, warm
     images, time_refiner = demo_refiner.infer(prompt, negative_prompt, images, image_height, image_width, warmup=warmup, verbose=verbose, seed=args["seed"])
     return images, time_base + time_refiner
 
+
+
+
 demo_base = init_sdxl_pipeline(Txt2ImgXLPipeline, False, args['onnx_base_dir'], 'engine_base_dir', args)
 demo_refiner = init_sdxl_pipeline(Img2ImgXLPipeline, True, args['onnx_refiner_dir'], 'engine_refiner_dir', args)
 max_device_memory = max(demo_base.calculateMaxDeviceMemory(), demo_refiner.calculateMaxDeviceMemory())
@@ -106,12 +109,7 @@ print("[I] Warming up ..")
 for _ in range(args["num_warmup_runs"]):
     images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
 
-print("[I] Running StableDiffusion pipeline")
-# if args.nvtx_profile:
-#     cudart.cudaProfilerStart()
-# images, pipeline_time = run_sd_xl_inference(warmup=False, verbose=args.verbose)
-# if args.nvtx_profile:
-#     cudart.cudaProfilerStop()
+
 
 
 
@@ -123,9 +121,24 @@ async def generate_and_refine_image(request: ImageRequest):
     negative_prompt = [request.negative_prompt]
     image_height = request.h
     image_width = request.w
-    
+    batch_size = len(prompt)
+    max_batch_size = 16
+    # FIXME VAE build fails due to element limit. Limitting batch size is WAR
+    if args["build_dynamic_shape"] or args["image_height"] > 512 or args["image_width"] > 512:
+        max_batch_size = 4
+    if batch_size > max_batch_size:
+        raise ValueError(f"Batch size {len(prompt)} is larger than allowed {max_batch_size}. If dynamic shape is used, then maximum batch size is 4")
+
+    if args.use_cuda_graph and (not args.build_static_batch or args.build_dynamic_shape):
+        raise ValueError(f"Using CUDA graph requires static dimensions. Enable `--build-static-batch` and do not specify `--build-dynamic-shape`")
+
+    print("[I] Running StableDiffusion pipeline")
+
     # Run the SDXL TensorRT inference
-    image, _ = run_sd_xl_inference(
+    if args["nvtx_profile"]:
+        cudart.cudaProfilerStart()
+
+    image, pipeline_time = run_sd_xl_inference(
         prompt=prompt, 
         negative_prompt=negative_prompt, 
         image_height=image_height, 
@@ -133,7 +146,13 @@ async def generate_and_refine_image(request: ImageRequest):
         warmup=False, 
         verbose=False
     )
-    
+    if args["nvtx_profile"]:
+        cudart.cudaProfilerStop()
+
+    print('|------------|--------------|')
+    print('| {:^10} | {:>9.2f} ms |'.format('e2e', pipeline_time))
+    print('|------------|--------------|')
+
     # Convert the generated image to JPEG and base64 encode it
     image = Image.fromarray(images[0].astype('uint8'))  # Assuming the image is in uint8 format
     buffered = BytesIO()
