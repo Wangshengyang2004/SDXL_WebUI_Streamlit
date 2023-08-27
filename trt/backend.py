@@ -120,7 +120,7 @@ for _ in range(args["num_warmup_runs"]):
 @app.post("/generate-and-refine/")
 async def generate_and_refine_image(request: ImageRequest):
     # Process prompt
-    prompt = request.prompt1+request.prompt2
+    prompt = request.prompt
     negative_prompt = request.negative_prompt
     image_height = request.h
     image_width = request.w
