@@ -85,25 +85,6 @@ def run_sd_xl_inference(prompt, negative_prompt, image_height, image_width, warm
     images, time_refiner = demo_refiner.infer(prompt, negative_prompt, images, image_height, image_width, warmup=warmup, verbose=verbose, seed=args.seed)
     return images, time_base + time_refiner
 
-if args["use_cuda_graph"]:
-    # inference once to get cuda graph
-    images, _ = run_sd_xl_inference(warmup=True, verbose=False)
-
-print("[I] Warming up ..")
-prompt = "A photo of a cat"
-negative_prompt = "A photo of a dog"
-for _ in range(args["num_warmup_runs"]):
-    images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
-
-print("[I] Running StableDiffusion pipeline")
-if args.nvtx_profile:
-    cudart.cudaProfilerStart()
-images, pipeline_time = run_sd_xl_inference(warmup=False, verbose=args.verbose)
-if args.nvtx_profile:
-    cudart.cudaProfilerStop()
-
-
-
 demo_base = init_sdxl_pipeline(Txt2ImgXLPipeline, False, args['onnx_base_dir'], 'engine_base_dir', args)
 demo_refiner = init_sdxl_pipeline(Img2ImgXLPipeline, True, args['onnx_refiner_dir'], 'engine_refiner_dir', args)
 max_device_memory = max(demo_base.calculateMaxDeviceMemory(), demo_refiner.calculateMaxDeviceMemory())
@@ -112,6 +93,27 @@ demo_base.activateEngines(shared_device_memory)
 demo_refiner.activateEngines(shared_device_memory)
 demo_base.loadResources(args["image_height"], args["image_width"], args["batch_size"], args["seed"])
 demo_refiner.loadResources(args["image_height"], args["image_width"], args["batch_size"], args["seed"])
+
+prompt = "A photo of a cat"
+negative_prompt = "A photo of a dog"
+
+if args["use_cuda_graph"]:
+    # inference once to get cuda graph
+    images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
+
+print("[I] Warming up ..")
+for _ in range(args["num_warmup_runs"]):
+    images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
+
+print("[I] Running StableDiffusion pipeline")
+# if args.nvtx_profile:
+#     cudart.cudaProfilerStart()
+# images, pipeline_time = run_sd_xl_inference(warmup=False, verbose=args.verbose)
+# if args.nvtx_profile:
+#     cudart.cudaProfilerStop()
+
+
+
 
 @app.post("/generate-and-refine/")
 async def generate_and_refine_image(request: ImageRequest):
