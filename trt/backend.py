@@ -91,8 +91,8 @@ def run_sd_xl_inference(prompt, negative_prompt, image_height, image_width, warm
 
 
 
-demo_base = init_sdxl_pipeline(Txt2ImgXLPipeline, False, args['onnx_base_dir'], 'engine_base_dir', args)
-demo_refiner = init_sdxl_pipeline(Img2ImgXLPipeline, True, args['onnx_refiner_dir'], 'engine_refiner_dir', args)
+demo_base = init_sdxl_pipeline(Txt2ImgXLPipeline, False, args['onnx_base_dir'], 'engine_xl_base', args)
+demo_refiner = init_sdxl_pipeline(Img2ImgXLPipeline, True, args['onnx_refiner_dir'], 'engine_xl_refiner', args)
 max_device_memory = max(demo_base.calculateMaxDeviceMemory(), demo_refiner.calculateMaxDeviceMemory())
 _, shared_device_memory = cudart.cudaMalloc(max_device_memory)
 demo_base.activateEngines(shared_device_memory)
