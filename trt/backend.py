@@ -85,7 +85,8 @@ def run_sd_xl_inference(prompt, negative_prompt, image_height, image_width, warm
     return images, time_base + time_refiner
 
 def tensor_to_base64(image_tensor):
-    # Convert tensor to uint8 numpy array
+    # Squeeze out the batch dimension and convert tensor to uint8 numpy array
+    image_tensor = image_tensor.squeeze(0)  # Remove batch dimension, now it becomes [3, 1024, 1024]
     image_np = ((image_tensor + 1) * 255 / 2).clamp(0, 255).detach().permute(1, 2, 0).round().type(torch.uint8).cpu().numpy()
     
     # Convert numpy array to PIL Image
@@ -99,6 +100,7 @@ def tensor_to_base64(image_tensor):
     img_str = base64.b64encode(buffered.getvalue()).decode()
     
     return img_str
+
 
 
 demo_base = init_sdxl_pipeline(Txt2ImgXLPipeline, False, args['onnx_base_dir'], 'engine_xl_base',args)
