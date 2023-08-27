@@ -8,8 +8,6 @@ from utilities import TRT_LOGGER
 from txt2img_xl_pipeline import Txt2ImgXLPipeline
 from img2img_xl_pipeline import Img2ImgXLPipeline
 from PIL import Image
-import os
-import torch
 
 class ImageRequest(BaseModel):
     prompt: str
@@ -28,8 +26,6 @@ args = {
     'hf_token': None,
     'verbose': False,
     'nvtx_profile': True,
-    'max_batch_size': 4,
-    'batch_size':1,
     'use_cuda_graph': True,
     'framework_model_dir': './model_dir',
     'onnx_opset': 12,
@@ -127,7 +123,7 @@ async def generate_and_refine_image(request: ImageRequest):
     negative_prompt = request.negative_prompt
     image_height = request.h
     image_width = request.w
-    batch_size = len(prompt)
+    batch_size = 1
 
     print("[I] Running StableDiffusion pipeline")
 
