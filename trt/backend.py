@@ -44,8 +44,8 @@ args = {
     'onnx_refit_dir': None,
     'seed': 0,
     'num_warmup_runs': 1,
-    'onnx-base-dir': '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-base',
-    'onnx-refiner-dir': '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-refiner',
+    'onnx_base_dir': '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-base',
+    'onnx_refiner_dir': '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-refiner',
 }
 
 # Initialize TensorRT SDXL Pipeline at startup
