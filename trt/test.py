@@ -23,15 +23,13 @@ if __name__ == "__main__":
     # Additional defaults (replace these with the actual defaults if known)
     prompt = "Astronaut in a jungle, cold color palette, muted colors, detailed, 8k"  # Replace with your actual prompt
     negative_prompt = []  # Replace if necessary
-    denoising_steps = 0  # Replace with default value
+    denoising_steps = 30  # Replace with default value
     output_dir = "./output"  # Replace with default value
     hf_token = None  # Replace with default value
     verbose = False  # Replace with default value
     nvtx_profile = False  # Replace with default value
     build_dynamic_shape = False  # Replace with default value
     use_cuda_graph = True  # Replace with default value
-    framework_model_dir = None  # Replace with default value
-    onnx_opset = None  # Replace with default value
     force_onnx_export = False  # Replace with default value
     force_onnx_optimize = False  # Replace with default value
     force_engine_build = False  # Replace with default value
@@ -39,8 +37,6 @@ if __name__ == "__main__":
     build_enable_refit = False  # Replace with default value
     build_preview_features = False  # Replace with default value
     build_all_tactics = False  # Replace with default value
-    timing_cache = None  # Replace with default value
-    onnx_refit_dir = None  # Replace with default value
     seed = 114514  # Replace with default value
     num_warmup_runs = 1  # Replace with default value
 
@@ -79,17 +75,17 @@ if __name__ == "__main__":
             max_batch_size=max_batch_size,
             use_cuda_graph=use_cuda_graph,
             refiner=refiner,
-            framework_model_dir=framework_model_dir)
+           )
 
         # Load TensorRT engines and PyTorch modules
-        demo.loadEngines(engine_dir, framework_model_dir, onnx_dir, onnx_opset,
+        demo.loadEngines(engine_dir,  onnx_dir, 
             opt_batch_size=batch_size, opt_image_height=image_height, opt_image_width=image_width, 
             force_export=force_onnx_export, force_optimize=force_onnx_optimize,
             force_build=force_engine_build,
             static_batch=build_static_batch, static_shape=not build_dynamic_shape, 
             enable_refit=build_enable_refit, enable_preview=build_preview_features, 
             enable_all_tactics=build_all_tactics,
-            timing_cache=timing_cache, onnx_refit_dir=onnx_refit_dir)
+            )
         return demo
 
     demo_base = init_pipeline(Txt2ImgXLPipeline, False, onnx_base_dir, engine_base_dir)
