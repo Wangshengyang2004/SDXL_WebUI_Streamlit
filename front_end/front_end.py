@@ -94,38 +94,49 @@ def text_to_image():
 
 
 def image_to_image():
-    pass
+    st.write("Still developing, please check back later.")
 
 def image_to_text():
-    pass
+    st.write("Still developing, please check back later.")
 
 def ControlNet():
-    pass
+    st.write("Still developing, please check back later.")
 
 def YOLOv8_Anime():
-    pass
+    st.write("Still developing, please check back later.")
 
 def My_Account():
-    pass
+    st.write("Still developing, please check back later.")
 
 def About():
     st.write("This is a web app for the SDXL 1.0 model. It is a work in progress.")
 
 def main():
-
-    tab1,tab2,tab3,tab4,tab5,tab6,tab7 = st.tabs(["Text to Image", "Image to Image", "Image to Text","ControlNet","YOLOv8 Anime","My Account","About"])
-    # Page info
     st.set_page_config(
         page_title="SDXL 1.0 Web App",
         page_icon=":robot:",
         layout='wide'
     )
 
+    tab1,tab2,tab3,tab4,tab5,tab6,tab7 = st.tabs(["Text to Image", "Image to Image", "Image to Text","ControlNet","YOLOv8 Anime","My Account","About"])
+    # Page info
+
     with tab1:
         text_to_image()
     
     with tab2:
         image_to_image()
+
+    with tab3:
+        image_to_text()
+    with tab4:
+        ControlNet()
+    with tab5:
+        YOLOv8_Anime()
+    with tab6:
+        My_Account()
+    with tab7:
+        About()
 
 if __name__ == "__main__":
     main()
