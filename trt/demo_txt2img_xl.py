@@ -109,6 +109,11 @@ if __name__ == "__main__":
     _, shared_device_memory = cudart.cudaMalloc(max_device_memory)
     demo_base.activateEngines(shared_device_memory)
     demo_refiner.activateEngines(shared_device_memory)
+
+    # TODO
+    image_height = 1024
+    image_width = 1024
+    batch_size = 4
     demo_base.loadResources(image_height, image_width, batch_size, args.seed)
     demo_refiner.loadResources(image_height, image_width, batch_size, args.seed)
 
