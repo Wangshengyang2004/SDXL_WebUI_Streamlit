@@ -91,18 +91,35 @@ def run_sd_xl_inference(prompt, negative_prompt, image_height, image_width, warm
 
 
 
-demo_base = init_sdxl_pipeline(Txt2ImgXLPipeline, False, args['onnx_base_dir'], 'engine_xl_base', args)
-demo_refiner = init_sdxl_pipeline(Img2ImgXLPipeline, True, args['onnx_refiner_dir'], 'engine_xl_refiner', args)
+demo_base = init_sdxl_pipeline(Txt2ImgXLPipeline, False, args['onnx_base_dir'], 'engine_xl_base')
+demo_refiner = init_sdxl_pipeline(Img2ImgXLPipeline, True, args['onnx_refiner_dir'], 'engine_xl_refiner')
 max_device_memory = max(demo_base.calculateMaxDeviceMemory(), demo_refiner.calculateMaxDeviceMemory())
 _, shared_device_memory = cudart.cudaMalloc(max_device_memory)
 demo_base.activateEngines(shared_device_memory)
 demo_refiner.activateEngines(shared_device_memory)
 image_height = 1024
 image_width = 1024
-batch_size = 4
+batch_size = 1
 demo_base.loadResources(image_height, image_width, batch_size, args["seed"])
 demo_refiner.loadResources(image_height, image_width, batch_size, args["seed"])
+test_prompt = "A photo of a cat"
+test_negative_prompt = "A photo of a dog"
+# FIXME VAE build fails due to element limit. Limitting batch size is WAR
+if args["build_dynamic_shape"] or args["image_height"] > 512 or args["image_width"] > 512:
+    max_batch_size = 4
+if batch_size > max_batch_size:
+    raise ValueError(f"Batch size {len(test_prompt)} is larger than allowed {max_batch_size}. If dynamic shape is used, then maximum batch size is 4")
 
+if args.use_cuda_graph and (not args.build_static_batch or args.build_dynamic_shape):
+    raise ValueError(f"Using CUDA graph requires static dimensions. Enable `--build-static-batch` and do not specify `--build-dynamic-shape`")
+
+if args["use_cuda_graph"]:
+# inference once to get cuda graph
+    images, _ = run_sd_xl_inference(test_prompt, test_negative_prompt, 1024,1024,warmup=True, verbose=False)
+
+print("[I] Warming up ..")
+for _ in range(args["num_warmup_runs"]):
+    images, _ = run_sd_xl_inference(test_prompt, test_negative_prompt, 1024,1024,warmup=True, verbose=False)
 
 @app.post("/generate-and-refine/")
 async def generate_and_refine_image(request: ImageRequest):
@@ -112,23 +129,6 @@ async def generate_and_refine_image(request: ImageRequest):
     image_height = request.h
     image_width = request.w
     batch_size = len(prompt)
-    max_batch_size = 16
-    # FIXME VAE build fails due to element limit. Limitting batch size is WAR
-    if args["build_dynamic_shape"] or args["image_height"] > 512 or args["image_width"] > 512:
-        max_batch_size = 4
-    if batch_size > max_batch_size:
-        raise ValueError(f"Batch size {len(prompt)} is larger than allowed {max_batch_size}. If dynamic shape is used, then maximum batch size is 4")
-
-    if args.use_cuda_graph and (not args.build_static_batch or args.build_dynamic_shape):
-        raise ValueError(f"Using CUDA graph requires static dimensions. Enable `--build-static-batch` and do not specify `--build-dynamic-shape`")
-    
-    if args["use_cuda_graph"]:
-    # inference once to get cuda graph
-        images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
-
-    print("[I] Warming up ..")
-    for _ in range(args["num_warmup_runs"]):
-        images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
 
     print("[I] Running StableDiffusion pipeline")
 
