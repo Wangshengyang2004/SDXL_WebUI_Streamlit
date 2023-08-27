@@ -79,7 +79,7 @@ def text_to_image():
             "high_noise_frac": denoising_end,
             "guidance_scale": guidance_scale
         })
-        st.toast(response)
+        st.write(response)
 
         if response.status_code == 200:
             st.write("Image generated successfully.")
