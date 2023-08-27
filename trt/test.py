@@ -14,8 +14,8 @@ if __name__ == "__main__":
     height = 1024
     width = 1024
     scheduler = "DDIM"
-    onnx_base_dir = '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-base'
-    onnx_refiner_dir = '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-refiner'
+    onnx_base_dir = "/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-base"
+    onnx_refiner_dir = "/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-refiner"
     engine_base_dir = 'engine_xl_base'
     engine_refiner_dir = 'engine_xl_refiner'
     
