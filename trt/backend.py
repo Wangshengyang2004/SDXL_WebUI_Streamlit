@@ -84,7 +84,21 @@ def run_sd_xl_inference(prompt, negative_prompt, image_height, image_width, warm
     images, time_refiner = demo_refiner.infer(prompt, negative_prompt, images, image_height, image_width, warmup=warmup, verbose=verbose)
     return images, time_base + time_refiner
 
-
+def tensor_to_base64(image_tensor):
+    # Convert tensor to uint8 numpy array
+    image_np = ((image_tensor + 1) * 255 / 2).clamp(0, 255).detach().permute(1, 2, 0).round().type(torch.uint8).cpu().numpy()
+    
+    # Convert numpy array to PIL Image
+    image = Image.fromarray(image_np)
+    
+    # Save PIL Image to BytesIO object
+    buffered = BytesIO()
+    image.save(buffered, format="JPEG")
+    
+    # Base64 encode and decode to string
+    img_str = base64.b64encode(buffered.getvalue()).decode()
+    
+    return img_str
 
 
 demo_base = init_sdxl_pipeline(Txt2ImgXLPipeline, False, args['onnx_base_dir'], 'engine_xl_base',args)
@@ -151,10 +165,7 @@ async def generate_and_refine_image(request: ImageRequest):
     print('|------------|--------------|')
 
     # Convert the generated image to JPEG and base64 encode it
-    image = Image.fromarray(images[0].astype('uint8'))  # Assuming the image is in uint8 format
-    buffered = BytesIO()
-    image.save(buffered, format="JPEG")
-    img_str = base64.b64encode(buffered.getvalue()).decode()
+    img_str = tensor_to_base64(image)
     
     return {"image_base64": img_str}
 
