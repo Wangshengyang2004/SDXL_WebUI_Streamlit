@@ -117,6 +117,8 @@ if args["use_cuda_graph"]:
 print("[I] Warming up ..")
 for _ in range(args["num_warmup_runs"]):
     images, _ = run_sd_xl_inference(test_prompt, test_negative_prompt, 1024,1024,warmup=True, verbose=False)
+    type(images)
+    print(images.shape)
 
 @app.post("/generate-and-refine/")
 async def generate_and_refine_image(request: ImageRequest):
