@@ -102,22 +102,6 @@ demo_base.loadResources(image_height, image_width, batch_size, args["seed"])
 demo_refiner.loadResources(image_height, image_width, batch_size, args["seed"])
 
 
-prompt = "A photo of a cat"
-negative_prompt = "A photo of a dog"
-
-if args["use_cuda_graph"]:
-    # inference once to get cuda graph
-    images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
-
-print("[I] Warming up ..")
-for _ in range(args["num_warmup_runs"]):
-    images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
-
-
-
-
-
-
 @app.post("/generate-and-refine/")
 async def generate_and_refine_image(request: ImageRequest):
     # Process prompt
@@ -135,6 +119,14 @@ async def generate_and_refine_image(request: ImageRequest):
 
     if args.use_cuda_graph and (not args.build_static_batch or args.build_dynamic_shape):
         raise ValueError(f"Using CUDA graph requires static dimensions. Enable `--build-static-batch` and do not specify `--build-dynamic-shape`")
+    
+    if args["use_cuda_graph"]:
+    # inference once to get cuda graph
+        images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
+
+    print("[I] Warming up ..")
+    for _ in range(args["num_warmup_runs"]):
+        images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
 
     print("[I] Running StableDiffusion pipeline")
 
