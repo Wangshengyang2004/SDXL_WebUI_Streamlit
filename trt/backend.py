@@ -90,8 +90,10 @@ if args["use_cuda_graph"]:
     images, _ = run_sd_xl_inference(warmup=True, verbose=False)
 
 print("[I] Warming up ..")
+prompt = "A photo of a cat"
+negative_prompt = "A photo of a dog"
 for _ in range(args["num_warmup_runs"]):
-    images, _ = run_sd_xl_inference(warmup=True, verbose=False)
+    images, _ = run_sd_xl_inference(prompt, negative_prompt, 1024,1024,warmup=True, verbose=False)
 
 print("[I] Running StableDiffusion pipeline")
 if args.nvtx_profile:
