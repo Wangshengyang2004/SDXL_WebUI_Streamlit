@@ -45,7 +45,6 @@ args = {
     'build_all_tactics': False,
     'timing_cache': None,
     'onnx_refit_dir': None,
-    'seed': 11451,
     'num_warmup_runs': 1,
     'onnx_base_dir': '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-base',
     'onnx_refiner_dir': '/mnt/h/SD_TRT/stable-diffusion-xl-1.0-tensorrt/sdxl-1.0-refiner',
@@ -84,8 +83,8 @@ def init_sdxl_pipeline(pipeline_class, refiner, onnx_dir, engine_dir, args):
     return demo
 
 def run_sd_xl_inference(prompt, negative_prompt, image_height, image_width, warmup=False, verbose=False):
-    images, time_base = demo_base.infer(prompt, negative_prompt, image_height, image_width, warmup=warmup, verbose=verbose, seed=args["seed"], return_type="latents")
-    images, time_refiner = demo_refiner.infer(prompt, negative_prompt, images, image_height, image_width, warmup=warmup, verbose=verbose, seed=args["seed"])
+    images, time_base = demo_base.infer(prompt, negative_prompt, image_height, image_width, warmup=warmup, verbose=verbose, return_type="latents")
+    images, time_refiner = demo_refiner.infer(prompt, negative_prompt, images, image_height, image_width, warmup=warmup, verbose=verbose)
     return images, time_base + time_refiner
 
 
@@ -100,8 +99,8 @@ demo_refiner.activateEngines(shared_device_memory)
 image_height = 1024
 image_width = 1024
 batch_size = 1
-demo_base.loadResources(image_height, image_width, batch_size, args["seed"])
-demo_refiner.loadResources(image_height, image_width, batch_size, args["seed"])
+demo_base.loadResources(image_height, image_width, batch_size)
+demo_refiner.loadResources(image_height, image_width, batch_size)
 test_prompt = "A photo of a cat"
 test_negative_prompt = "A photo of a dog"
 # FIXME VAE build fails due to element limit. Limitting batch size is WAR
