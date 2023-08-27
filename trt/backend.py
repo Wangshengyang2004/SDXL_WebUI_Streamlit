@@ -99,8 +99,8 @@ demo_refiner.activateEngines(shared_device_memory)
 image_height = 1024
 image_width = 1024
 batch_size = 1
-demo_base.loadResources(image_height, image_width, batch_size)
-demo_refiner.loadResources(image_height, image_width, batch_size)
+demo_base.loadResources(image_height, image_width, batch_size,seed=0)
+demo_refiner.loadResources(image_height, image_width, batch_size,seed=0)
 test_prompt = "A photo of a cat"
 test_negative_prompt = "A photo of a dog"
 # FIXME VAE build fails due to element limit. Limitting batch size is WAR
