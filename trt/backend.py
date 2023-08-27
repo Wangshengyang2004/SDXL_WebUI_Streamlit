@@ -65,8 +65,8 @@ def init_sdxl_pipeline(pipeline_class, refiner, onnx_dir, engine_dir, args):
     )
     demo.loadEngines(engine_dir, args['framework_model_dir'], onnx_dir, args['onnx_opset'],
                      opt_batch_size=1,  # This can be modified based on your use-case
-                     opt_image_height=args['height'],
-                     opt_image_width=args['width'],
+                     opt_image_height=args['image_height'],
+                     opt_image_width=args['image_width'],
                      force_export=args['force_onnx_export'],
                      force_optimize=args['force_onnx_optimize'],
                      force_build=args['force_engine_build'],
