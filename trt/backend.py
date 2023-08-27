@@ -97,8 +97,8 @@ image_width = 1024
 batch_size = 1
 demo_base.loadResources(image_height, image_width, batch_size,seed=0)
 demo_refiner.loadResources(image_height, image_width, batch_size,seed=0)
-test_prompt = "A photo of a cat"
-test_negative_prompt = "A photo of a dog"
+test_prompt = ["A photo of a cat"]
+test_negative_prompt = ["A photo of a dog"]
 # FIXME VAE build fails due to element limit. Limitting batch size is WAR
 if args["build_dynamic_shape"] or args["image_height"] > 512 or args["image_width"] > 512:
     max_batch_size = 4
@@ -110,6 +110,7 @@ if args["use_cuda_graph"] and (not args["build_static_batch"] or args["build_dyn
 
 if args["use_cuda_graph"]:
 # inference once to get cuda graph
+    print("Use cuda graph")
     images, _ = run_sd_xl_inference(test_prompt, test_negative_prompt, 1024,1024,warmup=True, verbose=False)
 
 print("[I] Warming up ..")
