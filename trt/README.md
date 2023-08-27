@@ -1,3 +1,13 @@
+# By Shengyang Wang
+## Models from: https://huggingface.co/stabilityai/stable-diffusion-xl-1.0-tensorrt
+## Borrow the pipeline from: https://github.com/rajeevsrao/TensorRT
+You can test with Frontend.py and Backend.py. More features will be added. And you can see the power of TensorRT in acceleration.
+
+
+
+
+
+# Original
 # Introduction
 
 This demo application ("demoDiffusion") showcases the acceleration of Stable Diffusion and ControlNet pipeline using TensorRT.
