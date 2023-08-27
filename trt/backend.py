@@ -56,7 +56,7 @@ def init_sdxl_pipeline(pipeline_class, refiner, onnx_dir, engine_dir, args):
         hf_token=args['hf_token'],
         verbose=args['verbose'],
         nvtx_profile=args['nvtx_profile'],
-        max_batch_size=args['max_batch_size'],
+        max_batch_size=4,
         use_cuda_graph=args['use_cuda_graph'],
         refiner=refiner,
         framework_model_dir=args['framework_model_dir']
