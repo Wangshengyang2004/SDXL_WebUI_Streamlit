@@ -12,7 +12,8 @@ st.write("""
 
 # Create form
 with st.form("generate_and_refine_form"):
-    prompt = st.text_input("Enter a prompt:", "A photo of a cat")
+    prompt1 = st.text_input("Enter a prompt:", "A photo of a cat")
+    prompt2 = st.text_input("Enter a prompt:", "8K")
     h = st.number_input("Image Height:", 1024)
     w = st.number_input("Image Width:", 1024)
     
@@ -26,7 +27,8 @@ if submitted:
 
     # Create data payload
     data = {
-        "prompt": prompt,
+        "prompt1": prompt1,
+        "prompt2": prompt2,
         "h": h,
         "w": w,
     }
