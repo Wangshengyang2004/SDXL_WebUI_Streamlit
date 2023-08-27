@@ -82,8 +82,8 @@ def init_sdxl_pipeline(pipeline_class, refiner, onnx_dir, engine_dir, args):
     return demo
 
 def run_sd_xl_inference(prompt, negative_prompt, image_height, image_width, warmup=False, verbose=False):
-    images, time_base = demo_base.infer(prompt, negative_prompt, image_height, image_width, warmup=warmup, verbose=verbose, seed=args.seed, return_type="latents")
-    images, time_refiner = demo_refiner.infer(prompt, negative_prompt, images, image_height, image_width, warmup=warmup, verbose=verbose, seed=args.seed)
+    images, time_base = demo_base.infer(prompt, negative_prompt, image_height, image_width, warmup=warmup, verbose=verbose, seed=args["seed"], return_type="latents")
+    images, time_refiner = demo_refiner.infer(prompt, negative_prompt, images, image_height, image_width, warmup=warmup, verbose=verbose, seed=args["seed"])
     return images, time_base + time_refiner
 
 demo_base = init_sdxl_pipeline(Txt2ImgXLPipeline, False, args['onnx_base_dir'], 'engine_base_dir', args)
