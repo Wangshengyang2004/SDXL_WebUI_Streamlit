@@ -27,6 +27,7 @@ if submitted:
     # Create data payload
     data = {
         "prompt": prompt,
+        "negative_prompt": "",
         "h": h,
         "w": w,
         "num_steps": num_steps

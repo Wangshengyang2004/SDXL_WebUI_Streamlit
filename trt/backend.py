@@ -11,6 +11,7 @@ from PIL import Image
 
 class ImageRequest(BaseModel):
     prompt: str
+    negative_prompt: str
     h: int
     w: int
     num_steps: int
