@@ -27,6 +27,7 @@ args = {
     'verbose': False,
     'nvtx_profile': False,
     'max_batch_size': 16,
+    'batch_size':4,
     'use_cuda_graph': True,
     'framework_model_dir': './model_dir',
     'onnx_opset': 12,
