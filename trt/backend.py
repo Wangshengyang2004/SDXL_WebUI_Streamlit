@@ -9,7 +9,9 @@ from txt2img_xl_pipeline import Txt2ImgXLPipeline
 from img2img_xl_pipeline import Img2ImgXLPipeline
 from PIL import Image
 import torch
+import os
 
+os.environ["CUDA_MODULE_LOADING"] = "LAZY"
 class ImageRequest(BaseModel):
     prompt: str
     negative_prompt: str
